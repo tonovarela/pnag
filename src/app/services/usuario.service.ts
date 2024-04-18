@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { StatusLogin, Usuario } from '../interfaces/usuario.interface';
+import { Rol, StatusLogin, Usuario } from '../interfaces/usuario.interface';
 import { environment } from '../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, map } from 'rxjs';
@@ -20,9 +20,16 @@ export class UsuarioService {
   })
 
   
+  setUsuarioDesarrollo(){
+    this.statusLogin.set(StatusLogin.PROCESSING);    
+    this.usuario.set({id:"2801",nombre:"mestelles",rol:Rol.ADMINISTRADOR});
+    this.statusLogin.set(StatusLogin.LOGGED);
+  }
 
   login(login: string, password: string) {
-    this.usuario.set({id:"2801",nombre:"mestelles"});
+    // this.statusLogin.set(StatusLogin.PROCESSING);    
+    // this.usuario.set({id:"2801",nombre:"mestelles"});
+    // this.statusLogin.set(StatusLogin.LOGGED);
     // return firstValueFrom(this.http.post(this.urlAPI + "/auth/login", { usuario:{login, password} }).pipe(
     //   map((response: any) => {
     //     const { data } = response;        

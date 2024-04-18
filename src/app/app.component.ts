@@ -22,7 +22,8 @@ export class AppComponent {
         case StatusLogin.LOGOUT:
           this.salirApp();
           break;
-        case StatusLogin.ERROR:
+          
+        case StatusLogin.ERROR:          
           this.uiService.mostrarAlertaError(this.appName, "Login incorrecto");
           this.salirApp();
           break;
@@ -39,6 +40,7 @@ export class AppComponent {
 
 
   salirApp() {
+    
     const esProduccion = environment.production;
     if (esProduccion) {
       window.location.href = "/litoapps";
@@ -56,17 +58,21 @@ export class AppComponent {
 
   async verificarLogin() {
     const user = localStorage.getItem("User");
-    const password = localStorage.getItem("Pass");    
-    if (!(user != null && password != null)) {
-      this.usuarioService.statusLogin.set(StatusLogin.INITIAL);
-      return;
-    }
-    try {
-      this.usuarioService.statusLogin.set(StatusLogin.PROCESSING);
-      await this.usuarioService.login(user, password);
+    const password = localStorage.getItem("Pass");                
 
-      this.usuarioService.statusLogin.set(StatusLogin.LOGGED);
-    } catch (error) {
+    this.usuarioService.statusLogin.set(StatusLogin.INITIAL);      
+    
+    if (!environment.production){
+        this.usuarioService.setUsuarioDesarrollo();        
+        return;
+    }
+    if (!(user != null && password != null)) {      
+      this.usuarioService.statusLogin.set(StatusLogin.ERROR);      
+      return;
+    }    
+    try {          
+       await this.usuarioService.login(user, password);      
+    } catch (error) {      
       this.usuarioService.statusLogin.set(StatusLogin.ERROR);
     }
 

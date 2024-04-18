@@ -21,8 +21,8 @@ export abstract class BaseGridComponent implements  OnDestroy {
 
 
 
-    protected iniciarResizeGrid(minusHeight: number) {
-        this.heightGrid = window.innerHeight - minusHeight;
+    protected iniciarResizeGrid(minusHeight: number) {        
+        this.heightGrid = window.innerHeight - minusHeight;        
         const subs1 = this.windowService.ResizeHeight().subscribe(x => {            
             this.heightGrid = window.outerHeight - minusHeight;
             this.dataBound();

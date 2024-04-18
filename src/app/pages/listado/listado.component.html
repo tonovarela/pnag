@@ -9,25 +9,39 @@
                     allowPaging="true " allowResizing="true" allowSorting="true" [pageSettings]='pageSettings'
                     [height]="heightGrid">
                     <ng-template #toolbarTemplate let-data>
+                        <div class="d-flex justify-content-end" style="background-color: white">
+                            @if (pendientes()){
+                                <button class="btn btn-sm btn-default mr-3 mt-1 mb-1" (click)="tooglePendientes()"> 
+                                    Ver Entregados
+                                </button>
+                            }@else {
+                                <button  class="btn btn-sm btn-default mr-3 mt-1 mb-1" (click)="tooglePendientes()" >
+                                    Ver Pendientes
+                                </button>
+                            }                                                        
+                        </div>
                     </ng-template>
                     <e-columns>
-                        <e-column  width="50" [allowFiltering]="false" headerText="Marbete">
+                        <e-column width="50" [allowFiltering]="false" textAlign='Center' headerText="Marbete">
                             <ng-template #template let-data>
-                                <i style="cursor: pointer" class="fas fa-file-pdf text-danger "></i>
+                                <button class="btn btn-round btn-border btn-icon btn-xs btn-danger "
+                                    (click)="imprimirMarbete(data)">
+                                    <i class="fas fa-file-pdf text-danger "></i>
+                                </button>
                             </ng-template>
                         </e-column>
-                        <e-column field="id_oportunidad" width="100" headerText="id">
+                        <e-column field="id_oportunidad" width="50" headerText="id">
                             <ng-template #template let-data>
                                 {{data.id_oportunidad}}
                             </ng-template>
                         </e-column>
-                        
-                        <e-column field="descripcionEstado" width="100" headerText="estado">
+
+                        <e-column field="descripcionEstado" width="90" headerText="estado">
                             <ng-template #template let-data>
                                 <select [(ngModel)]="data.id_estado"
-                                    (ngModelChange)="cambioEstatus(data.id_oportunidad,$event)">
+                                    (ngModelChange)="cambioEstatus(data)">
                                     @for(estado of data.siguientesEstados;track estado.id){
-                                    <option [value]="estado.id">{{estado.descripcion}}</option>
+                                    <option class="options" [value]="estado.id">{{estado.descripcion}}</option>
 
                                     }
 
@@ -38,14 +52,11 @@
                         </e-column>
                         <e-column field="nombreCliente" headerText="cliente">
                         </e-column>
-                        <e-column field="fecha_registro" >
+                        <e-column field="fecha_registro">
                         </e-column>
                     </e-columns>
 
                 </ejs-grid>
-                <pre>
-                    {{oportunidades() | json}}
-                </pre>
             </div>
         </div>
     </div>

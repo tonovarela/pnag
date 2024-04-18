@@ -18,7 +18,7 @@ import swal, { SweetAlertResult } from 'sweetalert2';
             allowEscapeKey: false,
             allowOutsideClick: false,
             didOpen: () => {
-              swal.showLoading(null)
+              swal.showLoading()
             }
           });
         }

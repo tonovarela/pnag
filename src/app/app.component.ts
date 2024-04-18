@@ -1,4 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject ,effect, computed} from '@angular/core';
+import { UiService } from './services/ui.service';
+import { UsuarioService } from './services/usuario.service';
+import { StatusLogin } from './interfaces/usuario.interface';
+import { environment } from '../environments/environment.development';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +10,66 @@ import { Component } from '@angular/core';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'pnag';
+  appName = environment.appName;
+  usuarioService = inject(UsuarioService);
+  uiService = inject(UiService);
+  effectRef:any;
+
+  constructor() {
+    this.effectRef = effect(() => {
+      
+      switch (this.usuarioService.statusLogin()) {
+        case StatusLogin.LOGOUT:
+          this.salirApp();
+          break;
+        case StatusLogin.ERROR:
+          this.uiService.mostrarAlertaError(this.appName, "Login incorrecto");
+          this.salirApp();
+          break;
+      }
+
+    }, {
+      allowSignalWrites: true
+    })
+  }
+
+  ngOnInit(): void {
+    this.verificarLogin();
+  }
+
+
+  salirApp() {
+    const esProduccion = environment.production;
+    if (esProduccion) {
+      window.location.href = "/litoapps";
+      localStorage.removeItem("User");
+      localStorage.removeItem("Pass");
+      return;
+    }
+  }
+
+  
+  statusLogin = computed(() => {
+    return this.usuarioService.statusLogin();
+  })
+
+
+  async verificarLogin() {
+    const user = localStorage.getItem("User");
+    const password = localStorage.getItem("Pass");    
+    if (!(user != null && password != null)) {
+      this.usuarioService.statusLogin.set(StatusLogin.INITIAL);
+      return;
+    }
+    try {
+      this.usuarioService.statusLogin.set(StatusLogin.PROCESSING);
+      await this.usuarioService.login(user, password);
+
+      this.usuarioService.statusLogin.set(StatusLogin.LOGGED);
+    } catch (error) {
+      this.usuarioService.statusLogin.set(StatusLogin.ERROR);
+    }
+
+  }
+
 }

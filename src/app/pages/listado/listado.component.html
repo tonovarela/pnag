@@ -1,0 +1,52 @@
+<div class="content">
+    <div class="page-inner">
+        <div class="page-header">
+
+
+            <div class="container-fluid">
+                <ejs-grid #grid [dataSource]='oportunidades()' [filterSettings]="filterSettings "
+                    (dataBound)='dataBound()' [allowExcelExport]='true' allowReordering='true' [allowFiltering]=true
+                    allowPaging="true " allowResizing="true" allowSorting="true" [pageSettings]='pageSettings'
+                    [height]="heightGrid">
+                    <ng-template #toolbarTemplate let-data>
+                    </ng-template>
+                    <e-columns>
+                        <e-column  width="50" [allowFiltering]="false" headerText="Marbete">
+                            <ng-template #template let-data>
+                                <i style="cursor: pointer" class="fas fa-file-pdf text-danger "></i>
+                            </ng-template>
+                        </e-column>
+                        <e-column field="id_oportunidad" width="100" headerText="id">
+                            <ng-template #template let-data>
+                                {{data.id_oportunidad}}
+                            </ng-template>
+                        </e-column>
+                        
+                        <e-column field="descripcionEstado" width="100" headerText="estado">
+                            <ng-template #template let-data>
+                                <select [(ngModel)]="data.id_estado"
+                                    (ngModelChange)="cambioEstatus(data.id_oportunidad,$event)">
+                                    @for(estado of data.siguientesEstados;track estado.id){
+                                    <option [value]="estado.id">{{estado.descripcion}}</option>
+
+                                    }
+
+                                </select>
+                            </ng-template>
+                        </e-column>
+                        <e-column field="nombreOportunidad" headerText="oportunidad">
+                        </e-column>
+                        <e-column field="nombreCliente" headerText="cliente">
+                        </e-column>
+                        <e-column field="fecha_registro" >
+                        </e-column>
+                    </e-columns>
+
+                </ejs-grid>
+                <pre>
+                    {{oportunidades() | json}}
+                </pre>
+            </div>
+        </div>
+    </div>
+</div>

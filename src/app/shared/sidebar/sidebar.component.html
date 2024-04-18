@@ -1,0 +1,31 @@
+<!-- Sidebar -->
+<div class="sidebar">
+
+    <div class="sidebar-background"></div>
+    <div class="sidebar-wrapper scrollbar-inner">
+        <div class="sidebar-content">
+            <ul class="nav">
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
+                    <h4 class="text-section">PNAG</h4>
+                </li>
+                <li class="nav-item" routerLinkActive="active">
+                    <a routerLink="/revision">
+                        <i class="fas fa-list"></i>
+                        <p>Listado</p>
+
+                    </a>
+                </li>                
+                <li class="nav-item">
+                    <a  (click)="cerrarSesion()"  routerLink="/actividades">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <p>Cerrar sesión</p>						
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- End Sidebar -->

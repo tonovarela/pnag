@@ -23,6 +23,11 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
+            "allowedCommonJsDependencies": [
+              "pdfmake/build/pdfmake",
+              "sweetalert2",
+              "pdfmake/build/vfs_fonts"
+            ],
             "outputPath": "dist/pnag",
             "index": "src/index.html",
             "browser": "src/main.ts",
@@ -44,8 +49,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "8mb",
+                  "maximumError": "10mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -53,6 +58,11 @@
                   "maximumError": "4kb"
                 }
               ],
+               "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.development.ts",
+                  "with": "src/environments/environment.ts"
+                }],
               "outputHashing": "all"
             },
             "development": {

@@ -3,6 +3,7 @@ import { Rol, StatusLogin, Usuario } from '../interfaces/usuario.interface';
 import { environment } from '../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, map } from 'rxjs';
+import { ResponseAuth } from '../interfaces/responseAuth.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class UsuarioService {
   constructor() { }
 
   usuarioLogueado= computed(() => {
-    return {id:this.usuario()?.id || "0",nombre:this.usuario()?.nombre || "--"};
+    return {id:this.usuario()?.id || "0",nombre:this.usuario()?.nombre || "--",rol:this.usuario()?.rol || "0"};
   })
 
   
@@ -27,16 +28,15 @@ export class UsuarioService {
   }
 
   login(login: string, password: string) {
-    // this.statusLogin.set(StatusLogin.PROCESSING);    
-    // this.usuario.set({id:"2801",nombre:"mestelles"});
-    // this.statusLogin.set(StatusLogin.LOGGED);
-    // return firstValueFrom(this.http.post(this.urlAPI + "/auth/login", { usuario:{login, password} }).pipe(
-    //   map((response: any) => {
-    //     const { data } = response;        
-    //     this.usuario.set({ id: data["id_Usuario"], nombre: data["login"] });
-    //     return response;
-    //   })
-    // ))
+        
+    return firstValueFrom(this.http.post<ResponseAuth>(this.urlAPI + "/auth/login", { login, password }).pipe(
+      map((response: ResponseAuth) => {                        
+         const {usuario} = response;
+        this.usuario.set({ id:usuario.id_usuario, nombre: usuario.login ,rol:usuario.rol});
+        return response;
+      
+      })
+    ))
   }
 
 

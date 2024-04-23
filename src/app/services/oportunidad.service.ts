@@ -1,7 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
-import { OportunidadesResponse, Oportunidad } from '../interfaces/oportunidadesResponse.interface';
+import {  OportunidadesResponse } from '../interfaces/OportunidadResponse.interface';
+import { Oportunidad } from '../interfaces/oportunidad.interface';
+
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +16,7 @@ export class OportunidadService {
   listar(pendientes: boolean = false) {    
     return this.http.get<OportunidadesResponse>(this.apiUrl + `/oportunidad?pendientes=${pendientes}`);
   }
-  actualizarEstatus(oportunidad:Partial<Oportunidad>){
-    return this.http.put(this.apiUrl+"/oportunidad/estatus",{oportunidad})
+  actualizarEstatus(oportunidad:Partial<Oportunidad>,id_usuario:string){
+    return this.http.put(this.apiUrl+"/oportunidad/estatus",{oportunidad,id_usuario})
   }
 }

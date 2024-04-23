@@ -1,10 +1,5 @@
 import { Estado } from "./estados.interface";
 
-export interface OportunidadesResponse {
-    oportunidades: Oportunidad[];
-    estados:Estado[];
-}
-
 export interface Oportunidad {
     id_oportunidad:    string;
     id_estado:         string;

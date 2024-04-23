@@ -11,14 +11,14 @@
                     <ng-template #toolbarTemplate let-data>
                         <div class="d-flex justify-content-end" style="background-color: white">
                             @if (pendientes()){
-                                <button class="btn btn-sm btn-default mr-3 mt-1 mb-1" (click)="tooglePendientes()"> 
-                                    Ver Entregados
-                                </button>
+                            <button class="btn btn-sm btn-default mr-3 mt-1 mb-1" (click)="tooglePendientes()">
+                                Ver Entregados
+                            </button>
                             }@else {
-                                <button  class="btn btn-sm btn-default mr-3 mt-1 mb-1" (click)="tooglePendientes()" >
-                                    Ver Pendientes
-                                </button>
-                            }                                                        
+                            <button class="btn btn-sm btn-default mr-3 mt-1 mb-1" (click)="tooglePendientes()">
+                                Ver Pendientes
+                            </button>
+                            }
                         </div>
                     </ng-template>
                     <e-columns>
@@ -37,12 +37,10 @@
                         </e-column>
 
                         <e-column field="descripcionEstado" width="90" headerText="estado">
-                            <ng-template #template let-data>
-                                <select [(ngModel)]="data.id_estado"
-                                    (ngModelChange)="cambioEstatus(data)">
-                                    @for(estado of data.siguientesEstados;track estado.id){
-                                    <option class="options" [value]="estado.id">{{estado.descripcion}}</option>
-
+                            <ng-template #template let-data>                                
+                                <select [(ngModel)]="data.id_estado" (ngModelChange)="cambioEstatus(data)">
+                                    @for(estado of data.siguientesEstados;track estado.id){                                    
+                                    <option class="options"  [disabled]="!estado.habilitado" [value]="estado.id">{{estado.descripcion}}</option>                                
                                     }
 
                                 </select>
@@ -57,7 +55,10 @@
                     </e-columns>
 
                 </ejs-grid>
+               
             </div>
         </div>
     </div>
+
+
 </div>

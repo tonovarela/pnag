@@ -62,16 +62,19 @@ export class AppComponent {
 
     this.usuarioService.statusLogin.set(StatusLogin.INITIAL);      
     
-    if (!environment.production){
-        this.usuarioService.setUsuarioDesarrollo();        
-        return;
-    }
+    // if (!environment.production){
+    //     this.usuarioService.setUsuarioDesarrollo();        
+    //     return;
+    // }
     if (!(user != null && password != null)) {      
       this.usuarioService.statusLogin.set(StatusLogin.ERROR);      
       return;
     }    
-    try {          
-       await this.usuarioService.login(user, password);      
+    try { 
+      this.usuarioService.statusLogin.set(StatusLogin.PROCESSING);         
+       await this.usuarioService.login(user, password);
+       console.log(this.usuarioService.usuarioLogueado());     
+       this.usuarioService.statusLogin.set(StatusLogin.LOGGED);
     } catch (error) {      
       this.usuarioService.statusLogin.set(StatusLogin.ERROR);
     }

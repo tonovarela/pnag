@@ -7,9 +7,9 @@ export interface Usuario {
 
 
 export enum Rol {
-    ADMINISTRADOR ,
-    CALIDAD, 
-    VENTAS 
+    ADMINISTRADOR="1" ,
+    CALIDAD="2", 
+    VENTAS ="3"
 }
 export enum StatusLogin {
     INITIAL,    

@@ -2,12 +2,15 @@ import { Component, effect, EffectRef, inject, OnDestroy, OnInit, signal } from 
 import { BaseGridComponent } from '../../abstract/BaseGrid.component';
 import { OportunidadService } from '../../services/oportunidad.service';
 import { Estado } from '../../interfaces/estados.interface';
-import { Oportunidad } from '../../interfaces/oportunidadesResponse.interface';
+
 
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { cuerpoMarbete } from '../../marbete/marbete.print';
 import { Marbete } from '../../interfaces/marbete.interface';
+import { UsuarioService } from '../../services/usuario.service';
+import { Rol } from '../../interfaces/usuario.interface';
+import { Oportunidad } from '../../interfaces/oportunidad.interface';
 
 pdfMake.fonts = {
   Roboto: {
@@ -25,96 +28,113 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
   templateUrl: './listado.component.html',
   styleUrl: './listado.component.css'
 })
-export class ListadoComponent extends BaseGridComponent implements OnInit,OnDestroy {
+export class ListadoComponent extends BaseGridComponent implements OnInit, OnDestroy {
 
   oportunidades = signal<Oportunidad[]>([]);
   oportunidadService = inject(OportunidadService);
   pendientes = signal(true);
+  estados: Estado[] = [];
+  usuarioService = inject(UsuarioService);
+
+  effectRef: EffectRef;
 
   override ngOnDestroy(): void {
     super.ngOnDestroy();
     this.effectRef.destroy();
-    
+
   }
 
   constructor() {
     super();
-    this.effectRef= effect(()=>{      
-      this.cargarInfo(this.pendientes());
-    })
+    this.effectRef = effect(() => this.cargarInfo(this.pendientes()))
   }
-  estados: Estado[] = [];
-    effectRef :EffectRef ;
 
-  ngOnInit(): void {    
+
+  ngOnInit(): void {
     this.autoFitColumns = false;
-    this.iniciarResizeGrid(300);
+    this.iniciarResizeGrid(350);
     this.pendientes.set(true);
 
   }
 
 
-  private cargarInfo(pendientes:boolean){    
-    this.oportunidadService.listar(pendientes).subscribe((response) =>{
-      this.estados= response.estados;
-      const oportunidades= response.oportunidades.map((oportunidad: Oportunidad) => {
-        oportunidad.siguientesEstados= this.obtenerSiguienteEstado(oportunidad.id_estado);
+  private cargarInfo(pendientes: boolean) {
+    this.oportunidadService.listar(pendientes).subscribe((response) => {
+      this.estados = response.estados;
+      const oportunidades = response.oportunidades.map((oportunidad: Oportunidad) => {
+        const siguienteEstados = this.obtenerSiguienteEstado(oportunidad.id_estado);
+        const estadosConPermisos = this.habilitarPermisos(siguienteEstados,oportunidad.id_estado);
+        oportunidad.siguientesEstados = estadosConPermisos;        
         return oportunidad;
       });
       this.oportunidades.set(oportunidades)
-
     });
   }
 
-  cambioEstatus(oportunidad:Oportunidad){    
+  cambioEstatus(oportunidad: Oportunidad) {
+    const {
+      id_oportunidad,
+      id_estado,
+      nombreOportunidad,
+      id_cliente,
+      nombreCliente,
+    } = oportunidad;
 
-const { 
-  id_oportunidad,
-  id_estado,    
-  nombreOportunidad,  
-  id_cliente,  
-  nombreCliente,       
-} = oportunidad;
- 
 
- const o ={ 
-  id_oportunidad,
-  id_estado,    
-  nombre:nombreOportunidad,  
-  id_cliente,  
-  nombreCliente,       
-} ;
-   
-    this.oportunidadService.actualizarEstatus(o).subscribe(_=>this.cargarInfo(this.pendientes()))
+    const oportunidadActualizar = {
+      id_oportunidad,
+      id_estado,
+      nombre: nombreOportunidad,
+      id_cliente,
+      nombreCliente,
+    };
+     const {id} = this.usuarioService.usuarioLogueado()
+    this.oportunidadService.actualizarEstatus(oportunidadActualizar,id).subscribe(_ => this.cargarInfo(this.pendientes()))
 
-    
+
   }
 
 
-  tooglePendientes(){
-    const t = !this.pendientes();    
+  tooglePendientes() {
+    const t = !this.pendientes();
     this.pendientes.set(t);
   }
 
 
-  obtenerSiguienteEstado(id_estado:string){    
-    let estado :Estado []=[];
-    if (id_estado === '1'){
-      estado=this.estados.filter(x=>["1","2"].includes(x.id));
+  obtenerSiguienteEstado(id_estado: string) {
+    let estado: Estado[] = [];
+
+    if (id_estado === '1') {
+      estado = this.estados.filter(x => ["1", "2"].includes(x.id));
     }
-    if (id_estado === '2' ){      
-      estado=this.estados.filter(x=>["3","2"].includes(x.id));
-    }     
-    if (id_estado === '3' ){
-      estado=this.estados.filter(x=>x.id==='3');
-    }    
+    if (id_estado === '2') {
+      estado = this.estados.filter(x => ["3", "2"].includes(x.id));
+    }
+    if (id_estado === '3') {
+      estado = this.estados.filter(x => x.id === '3');
+    }
     return estado;
 
   }
 
-   imprimirMarbete(oportunidad: Oportunidad){
-    const marbete:Marbete ={
-      id_oportunidad: oportunidad.id_oportunidad! ,
+
+  habilitarPermisos(estados: Estado[], id_estadoSeleccionado: string): Estado[] {
+    let _newEstados: Estado[] = estados.map(x => { return { ...x, habilitado: true } });
+    const { rol } = this.usuarioService.usuarioLogueado();
+    //Deshabilitar a calidad el pasar al siguiente rol            
+    if (Rol.CALIDAD === rol && id_estadoSeleccionado === "2") {      
+      _newEstados = _newEstados.map(x => {return { ...x, habilitado: x.id !== '3' }});
+    }  
+    if (Rol.VENTAS === rol && id_estadoSeleccionado === "1") {      
+      _newEstados = _newEstados.map(x => {return { ...x, habilitado: x.id !== '2' }});
+    }  
+    return _newEstados;
+  }
+ 
+
+  imprimirMarbete(oportunidad: Oportunidad) {
+    const marbete: Marbete = {
+      id_oportunidad: oportunidad.id_oportunidad!,
       identificador: 'MUESRTRA',
       cantidad: 15,
       inventario: 15,
@@ -134,11 +154,11 @@ const {
       tipoMarbete: 'Premio nacional de artes graficas',
       id_tipoPallet: 0,
       tipoPallet: 'Muestra',
-      
+
     };
-      const doc =cuerpoMarbete(marbete);
-      let docGeneratorPDF = pdfMake.createPdf(doc as any);
-       docGeneratorPDF.open();
+    const doc = cuerpoMarbete(marbete);
+    let docGeneratorPDF = pdfMake.createPdf(doc as any);
+    docGeneratorPDF.open();
 
   }
 
